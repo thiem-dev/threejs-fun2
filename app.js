@@ -1,3 +1,6 @@
+//Orbit CDN is down, so no orbit controls sadly.
+
+
 var noise = new SimplexNoise();
 
 const init = function (){
