@@ -1,18 +1,15 @@
 var noise = new SimplexNoise();
 
-var init = function (){
+const init = function (){
   
 
-var audio = document.getElementById("audio");
-var file = document.getElementById("thefile");
-var vertexShaderM = document.getElementById('vertexShader').textContent;
-var fragmentShaderM = document.getElementById('fragmentShader').textContent;
-
-//   audio.load();
-//   play();
+let audio = document.getElementById("audio");
+let file = document.getElementById("thefile");
+// var vertexShaderM = document.getElementById('vertexShader').textContent;
+// var fragmentShaderM = document.getElementById('fragmentShader').textContent;
 
   audio.volume = 0.5;
-  var fileLabel = document.querySelector("label.file");
+//   var fileLabel = document.querySelector("label.file");
   
   document.onload = function(e){
     console.log(e);
@@ -21,9 +18,7 @@ var fragmentShaderM = document.getElementById('fragmentShader').textContent;
   }
 
   file.onchange = function(){
-    fileLabel.classList.add('normal');
-    audio.classList.add('active');
-    var files = this.files;
+    let files = this.files;
     
     audio.src = URL.createObjectURL(files[0]);
     audio.load();
@@ -34,35 +29,15 @@ var fragmentShaderM = document.getElementById('fragmentShader').textContent;
     function play() {
 
 
-        //audio configurations
-        var context = new AudioContext();
-        var src = context.createMediaElementSource(audio);
-        var analyser = context.createAnalyser();
+        //audio data stream configs
+        let context = new AudioContext();
+        let src = context.createMediaElementSource(audio);
+        let analyser = context.createAnalyser();
         src.connect(analyser);
         analyser.connect(context.destination);
         analyser.fftSize = 512;
-        var bufferLength = analyser.frequencyBinCount;
-        var dataArray = new Uint8Array(bufferLength);
-
-
-
-          //freq translated to vertex movement
-            const uniforms = {
-                u_time: {
-                type: "f",
-                value: 1.0,
-                },
-                u_amplitude: {
-                type: "f",
-                value: 3.0,
-                },
-                u_data_arr: {
-                type: "float[64]",
-                value: dataArray,
-                },
-                // u_black: { type: "vec3", value: new THREE.Color(0x000000) },
-                // u_white: { type: "vec3", value: new THREE.Color(0xffffff) },
-            };
+        let bufferLength = analyser.frequencyBinCount;
+        let dataArray = new Uint8Array(bufferLength);
 
         //Three JS basic animation
         const scene = new THREE.Scene();
@@ -72,12 +47,6 @@ var fragmentShaderM = document.getElementById('fragmentShader').textContent;
           });
         renderer.setSize( window.innerWidth/2, window.innerHeight/2 );
         document.body.appendChild( renderer.domElement );
-    
-    
-        //cube geo
-        const geometry = new THREE.BoxGeometry( 3, 3, 3 );
-        const material = new THREE.MeshBasicMaterial( { color: 0x00ff00, wireframe: true} );
-        const cube = new THREE.Mesh( geometry, material );
 
 
         //plane specs
@@ -88,23 +57,25 @@ var fragmentShaderM = document.getElementById('fragmentShader').textContent;
         });
 
         //controls all the vertices (didn't work)
-        const planeCustomMaterial = new THREE.ShaderMaterial({
-            uniforms: uniforms, //dataArray, time
-            vertexShader: vertexShaderM,
-            fragmentShader: fragmentShaderM,
-            wirefreame:true,
-        })
+        // const planeCustomMaterial = new THREE.ShaderMaterial({
+        //     uniforms: uniforms, //dataArray, time
+        //     vertexShader: vertexShaderM,
+        //     fragmentShader: fragmentShaderM,
+        //     wirefreame:true,
+        // })
 
-        //ball
+
+        //ball material
         var icosahedronGeometry = new THREE.IcosahedronGeometry(3, 3, 24 );
         var lambertMaterial = new THREE.MeshNormalMaterial({
             color: 0x00ff00,
             wireframe: true
         });
         var ball = new THREE.Mesh(icosahedronGeometry, lambertMaterial);
-        ball.position.set(0, 0, -30);
+        ball.position.set(0, 0, -15);
 
 
+        //plane materials
         var plane = new THREE.Mesh(planeGeometry, planeMaterial);
         plane.rotation.x = -0.5 * Math.PI;
         plane.position.set(0, 30, 0);
@@ -115,12 +86,12 @@ var fragmentShaderM = document.getElementById('fragmentShader').textContent;
         plane2.position.set(0, -30, 0);
         
     
+
+        
         camera.position.z = 20;
-    
 
         //add props to scene
         scene.add(ball)
-        // scene.add( cube );
         scene.add(plane)
         scene.add(plane2)
 
@@ -135,8 +106,8 @@ var fragmentShaderM = document.getElementById('fragmentShader').textContent;
             // music data
             analyser.getByteFrequencyData(dataArray);
             console.log(dataArray)
-            uniforms.u_time.value = time;
-            uniforms.u_data_arr.value = dataArray;
+            // uniforms.u_time.value = time;
+            // uniforms.u_data_arr.value = dataArray;
 
 
             // animate waves
@@ -178,7 +149,8 @@ var fragmentShaderM = document.getElementById('fragmentShader').textContent;
 
 
 
-//modulation math for objects
+// borrowing a simulated shader library
+//modulation math for objects -----------------------------------------------------------------------------------------
 
 //vertex movement of cube
 function ballDance(mesh, bassFr, treFr) {
@@ -212,6 +184,7 @@ function groundDance(mesh, distortionFr) {
     mesh.geometry.computeFaceNormals();
 }
 
+
 //additional math methods for audio frequencies
 function fractionate(val, minVal, maxVal) {
     return (val - minVal)/(maxVal - minVal);
@@ -236,8 +209,6 @@ function max(arr){
 
 
 
-//on load
+//when whole page is loaded
 window.onload = init();
-//on load
-document.body.addEventListener('touchend', function(ev) { context.resume(); });
 
